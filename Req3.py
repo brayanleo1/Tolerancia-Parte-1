@@ -15,7 +15,7 @@ def request3():
         print("Request 3 (Store): Falha de erro simulada.")
         return jsonify({"message": "Internal server error"}), 500
 
-    if random.random() < 0.5:
+    if random.random() < 0.1:
         print("Request 3 (Store): Falha temporária.")
         failing = True
         timer_name = threading.Timer(5, activate_error)
