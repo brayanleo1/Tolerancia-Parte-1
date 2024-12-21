@@ -17,8 +17,8 @@ def request1():
         # Simular resposta bem-sucedida
         product = {"id": product_id, "name": "Produto X", "value": 100.0}
         print(f"Request 1 (Store): Sucesso - {product}")
-        return jsonify(product)
+        return jsonify(product), 200
     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)

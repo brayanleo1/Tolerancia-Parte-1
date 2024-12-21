@@ -17,7 +17,7 @@ def request2():
     # Simular resposta bem-sucedida
     exchange_rate = round(random.uniform(4.5, 5.5), 2)  # Exemplo de taxa de conversão
     print(f"Request 2 (Exchange): Sucesso - Taxa de conversão: {exchange_rate}")
-    return jsonify({"exchange_rate": exchange_rate})
+    return jsonify({"exchange_rate": exchange_rate}), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5002)
