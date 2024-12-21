@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import random
 import threading
-import uuid
 import time
 
 failing = False

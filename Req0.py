@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify
 import requests
+import threading
+from requests.adapters import HTTPAdapter, Retry
+
 
 app = Flask(__name__)
 
 last_exchange_rate = 1
+process_in_the_log = False
 
 #This request will receive
 """
@@ -27,6 +31,15 @@ It applies the following failure tolerance strategy if the ft parameter is true:
 @app.route('/buy', methods=['POST'])
 def request0():
     global last_exchange_rate
+    global process_in_the_log
+
+    s = requests.Session()
+
+    retries = Retry(total=0,
+                    backoff_factor=0.1,
+                    status_forcelist=[ 500, 502, 503, 504 ])
+
+    s.mount('http://', HTTPAdapter(max_retries=retries))
 
     data = request.get_json()
     product_id = data["product_id"]
@@ -43,20 +56,20 @@ def request0():
     product_data = '{"product_id": ' + str(product_id) + '}'
     
     # Request to the store product information service
-    product = requests.get('http://localhost:5001/product', headers=headers, data=product_data)
+    product = s.get('http://localhost:5001/product', headers=headers, data=product_data)
     print(product)
 
     if product.status_code != 200:
         if ft:
             for i in range(3):
-                product = requests.get('http://localhost:5001/product', headers=headers, data=product_data)
+                product = s.get('http://localhost:5001/product', headers=headers, data=product_data)
                 if product.status_code == 200:
                     break
         else:
             return jsonify({"message": "Internal server error"}), 500
     
     # Request to the exchange rate service
-    exchange = requests.get('http://localhost:5002/exchange', headers=headers)
+    exchange = s.get('http://localhost:5002/exchange', headers=headers)
 
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
@@ -70,12 +83,12 @@ def request0():
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
     # Request to the store selling service
-    sell = requests.post('http://localhost:5003/sell', headers=headers, data=sell_data)
+    sell = s.post('http://localhost:5003/sell', headers=headers, data=sell_data)
 
     if sell.status_code != 200:
         if ft:
             for i in range(3):
-                sell = requests.post('http://localhost:5003/sell', headers=headers, data=sell_data)
+                sell = s.post('http://localhost:5003/sell', headers=headers, data=sell_data)
                 if sell.status_code == 200:
                     break
         else:
@@ -84,16 +97,55 @@ def request0():
     bonus_data = '{"user_id": ' + str(user_id) + ', "bonus_value": ' + str(round(product.json()["value"])) + '}'
 
     # Request to the fidelity service
-    bonus = requests.post('http://localhost:5004/bonus', headers=headers, data=bonus_data)
+    bonus = s.post('http://localhost:5004/bonus', headers=headers, data=bonus_data)
 
     if bonus.status_code != 200:
         if ft:
-            # Store log with user ID and bonus value
-            print(f"Request 0 (Store): Falha ao conceder bônus de {bonus_data['bonus_value']} ao usuário {bonus_data['user_id']}.")
+            # Now open the file log.txt and write the user_id and bonus_value on the last line
+            with open("log.txt", "a") as file:
+                file.write(" " + str(user_id) +" "+ str(round(product.json()["value"])) + f"\n")
+            # Now set the process_in_the_log to True
+            process_in_the_log = True
+
+            # Now create a timer thread to try to process the log in 20 seconds
+            timerT =  threading.Timer(20, process_log)
+            timerT.start()
+            print("Log saved")
+            
+
         else:
             return jsonify({"message": "Internal server error"}), 500
 
     return jsonify({"message": "Success"}), 200
+
+def process_log():
+    print("Processing log")
+    global process_in_the_log
+
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+
+    if process_in_the_log:
+        print("Let's process the log")
+        with open("log.txt", "r") as file:
+            for line in file:
+                user_id, bonus_value = line.split()
+                bonus_data = '{"user_id": ' + str(user_id) + ', "bonus_value": ' + str(bonus_value) + '}'
+                bonus = requests.post('http://localhost:5004/bonus', headers=headers, data=bonus_data)
+                if bonus.status_code == 200:
+                    # Remove the line from the log file
+                    with open("log.txt", "r") as file:
+                        lines = file.readlines()
+                    with open("log.txt", "w") as file:
+                        for line2 in lines:
+                            if line2 != line:
+                                file.write(line2)
+                                break
+                else:
+                    threading.Timer(20, process_log) #Try again in 20 seconds
+    process_in_the_log = False
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
