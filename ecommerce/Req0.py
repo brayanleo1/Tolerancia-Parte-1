@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import requests
 import threading
 from requests.adapters import HTTPAdapter, Retry
-
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -28,6 +28,14 @@ It applies the following failure tolerance strategy if the ft parameter is true:
 * If the request to the fidelity service fails, it will store a log with the user ID and the bonus value for later processing.
     - This goes to the route /bonus
 """
+
+# Configurações do banco de dados
+db_config = mysql.connector.connect(user= "user", password= "password", port= "3307", database= "ecomerce2")
+
+# Conexão com o banco de dados
+def get_db_connection():
+    return mysql.connector.connect(**db_config)
+
 @app.route('/buy', methods=['POST'])
 def request0():
     global last_exchange_rate
@@ -83,7 +91,7 @@ def request0():
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
     # Request to the store selling service
-    sell = s.post('http://localhost:5003/sell', headers=headers, data=sell_data)
+    sell = s.post('http://localhost:5001/sell', headers=headers, data=sell_data)
 
     if sell.status_code != 200:
         if ft:
