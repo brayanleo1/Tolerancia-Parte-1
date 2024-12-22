@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import requests
 import threading
 from requests.adapters import HTTPAdapter, Retry
-import mysql.connector
 
 app = Flask(__name__)
 
@@ -28,13 +27,6 @@ It applies the following failure tolerance strategy if the ft parameter is true:
 * If the request to the fidelity service fails, it will store a log with the user ID and the bonus value for later processing.
     - This goes to the route /bonus
 """
-
-# Configurações do banco de dados
-db_config = mysql.connector.connect(host="db",user= "root", password= "root", port= "3306", database= "db")
-
-# Conexão com o banco de dados
-def get_db_connection():
-    return mysql.connector.connect(**db_config)
 
 @app.route('/buy', methods=['POST'])
 def request0():
