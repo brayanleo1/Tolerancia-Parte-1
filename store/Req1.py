@@ -33,12 +33,12 @@ def request1():
 
         # Mandar requisição para o banco de dados
         product_data = '{"command": "select", "table": "products", "value_1": ' + str(product_id) + '}'
-        store = s.post('http://localhost:5005/data_access', headers=headers, data=product_data)
-
+        store = s.post('http://database:5005/data_access', headers=headers, data=product_data)
+        store = store.json()
         # Simular resposta bem-sucedida
-        product = {"id": product_id, "name": store["name"], "value": store["value"]}
-        print(f"Request 1 (Store): Sucesso - {product}")
-        return jsonify(product), 200
+        #product = {"id": product_id, "name": store["name"], "value": store["value"]}
+        print("Request 1 (Store): Sucesso - {product}")
+        return store, 200
     
 
 failing = False
@@ -79,8 +79,8 @@ def request3():
 
     # Mandar requisição para o banco de dados
     transaction_data = '{"command": "insert", "table": "transactions", "value_1": ' + transaction_id + ', "value_2": ' + str(product_id) + '}'
-    s.post('http://localhost:5005/data_access', headers=headers, data=transaction_data)
-
+    s.post('http://database:5005/data_access', headers=headers, data=transaction_data)
+    
     print(f"Request 3 (Store): Sucesso - Transação ID: {transaction_id}")
     return jsonify({"transaction_id": transaction_id}), 200
 

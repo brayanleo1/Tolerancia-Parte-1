@@ -10,4 +10,4 @@ RUN pip install mysql-connector-python
 # Expose the application port
 EXPOSE 5001
 # Command to run the application
-CMD ["python", "Req1.py"]
+CMD ["python", "-u", "Req1.py"]

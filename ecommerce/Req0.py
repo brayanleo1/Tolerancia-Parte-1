@@ -56,21 +56,22 @@ def request0():
     product_data = '{"product_id": ' + str(product_id) + '}'
     
     # Request to the store product information service
-    product = s.get('http://localhost:5001/product', headers=headers, data=product_data)
+    product = s.get('http://store:5001/product', headers=headers, data=product_data)
     print(product)
 
     if product.status_code != 200:
         if ft:
             for i in range(3):
-                product = s.get('http://localhost:5001/product', headers=headers, data=product_data)
+                product = s.get('http://store:5001/product', headers=headers, data=product_data)
                 if product.status_code == 200:
                     break
         else:
             return jsonify({"message": "Internal server error"}), 500
     
     # Request to the exchange rate service
-    exchange = s.get('http://localhost:5002/exchange', headers=headers)
-
+    exchange = s.get('http://exchange:5002/exchange', headers=headers)
+    if !exchange :
+        print("TESTE")
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
 
@@ -83,12 +84,12 @@ def request0():
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
     # Request to the store selling service
-    sell = s.post('http://localhost:5001/sell', headers=headers, data=sell_data)
+    sell = s.post('http://store:5001/sell', headers=headers, data=sell_data)
 
     if sell.status_code != 200:
         if ft:
             for i in range(3):
-                sell = s.post('http://localhost:5003/sell', headers=headers, data=sell_data)
+                sell = s.post('http://store:5001/sell', headers=headers, data=sell_data)
                 if sell.status_code == 200:
                     break
         else:
@@ -97,7 +98,7 @@ def request0():
     bonus_data = '{"user_id": ' + str(user_id) + ', "bonus_value": ' + str(round(product.json()["value"])) + '}'
 
     # Request to the fidelity service
-    bonus = s.post('http://localhost:5004/bonus', headers=headers, data=bonus_data)
+    bonus = s.post('http://fidellity:5004/bonus', headers=headers, data=bonus_data)
 
     if bonus.status_code != 200:
         if ft:
@@ -133,7 +134,7 @@ def process_log():
             for line in file:
                 user_id, bonus_value = line.split()
                 bonus_data = '{"user_id": ' + str(user_id) + ', "bonus_value": ' + str(bonus_value) + '}'
-                bonus = requests.post('http://localhost:5004/bonus', headers=headers, data=bonus_data)
+                bonus = requests.post('http://fidellity:5004/bonus', headers=headers, data=bonus_data)
                 if bonus.status_code == 200:
                     # Remove the line from the log file
                     with open("log.txt", "r") as file:

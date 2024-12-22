@@ -1,15 +1,15 @@
 FROM python:3.9-slim
 # Set the working directory
-WORKDIR /ecommerce
+WORKDIR /database
 # Copy the application code into the container
-COPY Req0.py /ecommerce
+COPY database.py /database
 # Install dependencies
 RUN pip install flask
 RUN pip install requests
 RUN pip install mysql-connector-python
 
 # Expose the application port
-EXPOSE 5000
+EXPOSE 5005
 # Command to run the application
 #RUN  sleep 10s
-CMD ["python", "-u", "Req0.py"]
+CMD ["python", "-u", "database.py"]

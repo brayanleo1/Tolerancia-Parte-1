@@ -28,7 +28,6 @@ def handle_request():
     global products
     global users
     global transactions
-
     data = request.get_json()
     #data will have the command, the table and the value_1, value_2 or value_3
     if data['command'] == 'select':

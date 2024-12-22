@@ -46,8 +46,8 @@ def request4():
 
     # Select the bonus value from the database
     bonus_data = '{"command": "select", "table": "users", "value_1": ' + str(data["user_id"]) + '}'
-    bonus = s.post('http://localhost:5005/data_access', headers=headers, data=bonus_data)
-    
+    bonus = s.post('http://database:5005/data_access', headers=headers, data=bonus_data)
+    bonus = bonus.json()
     #now sum the bonus value
     bonus_value += bonus["bonus"]
 
@@ -56,7 +56,7 @@ def request4():
     database_data = '{"command": "update", "table": "users", "value_1": ' + str(user_id) + ', "value_2": ' + str(bonus_value) + '}'
 
     #Manuseia o banco de dados para adicionar o bônus ao usuário
-    s.post('http://localhost:5005/data_access', headers=headers, data=database_data)
+    s.post('http://database:5005/data_access', headers=headers, data=database_data)
 
     
 
