@@ -1,0 +1,13 @@
+FROM python:3.9-slim
+# Set the working directory
+WORKDIR /fidellity
+# Copy the application code into the container
+COPY Req4.py /fidellity
+# Install dependencies
+RUN pip install flask
+RUN pip install requests
+RUN pip install mysql-connector-python
+# Expose the application port
+EXPOSE 5004
+# Command to run the application
+CMD ["python", "Req4.py"]

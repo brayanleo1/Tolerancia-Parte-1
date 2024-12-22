@@ -1,0 +1,13 @@
+FROM python:3.9-slim
+# Set the working directory
+WORKDIR /store
+# Copy the application code into the container
+COPY Req1.py /store
+# Install dependencies
+RUN pip install flask
+RUN pip install requests
+RUN pip install mysql-connector-python
+# Expose the application port
+EXPOSE 5001
+# Command to run the application
+CMD ["python", "Req1.py"]
