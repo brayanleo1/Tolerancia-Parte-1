@@ -14,12 +14,6 @@ app = Flask(__name__)
 def request4():
     s = requests.Session()
 
-    retries = Retry(total=0,
-                    backoff_factor=0.1,
-                    status_forcelist=[ 500, 502, 503, 504 ])
-
-    s.mount('http://', HTTPAdapter(max_retries=retries))
-
     headers = {
         'accept': 'application/json',
         'Content-Type': 'application/json'

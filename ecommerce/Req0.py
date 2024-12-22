@@ -35,12 +35,6 @@ def request0():
 
     s = requests.Session()
 
-    retries = Retry(total=0,
-                    backoff_factor=0.1,
-                    status_forcelist=[ 500, 502, 503, 504 ])
-
-    s.mount('http://', HTTPAdapter(max_retries=retries))
-
     data = request.get_json()
     product_id = data["product_id"]
     user_id = data["user_id"]
@@ -65,21 +59,28 @@ def request0():
                 product = s.get('http://store:5001/product', headers=headers, data=product_data)
                 if product.status_code == 200:
                     break
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o product"}), 500
         else:
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o product"}), 500
     
     # Request to the exchange rate service
-    exchange = s.get('http://exchange:5002/exchange', headers=headers)
+    try:
+        exchange = s.get('http://exchange:5002/exchange', headers=headers)
+    except requests.exceptions.RequestException:
+        if ft:
+            exchange = jsonify({"exchange_rate": last_exchange_rate})
+        else:
+            return jsonify({"message": "Erro ao tentar conectar com o exchange"}), 500
+
 
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
 
-    if exchange.status_code != 200:
+    if exchange.status_code != 200 or exchange == None or exchange.json()["exchange_rate"] == None:
         if ft:
             exchange = jsonify({"exchange_rate": last_exchange_rate})
         else:
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o exchange"}), 500
 
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
@@ -92,9 +93,9 @@ def request0():
                 sell = s.post('http://store:5001/sell', headers=headers, data=sell_data)
                 if sell.status_code == 200:
                     break
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o /sell"}), 500
         else:
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o /sell"}), 500
     
     bonus_data = '{"user_id": ' + str(user_id) + ', "bonus_value": ' + str(round(product.json()["value"])) + '}'
 
@@ -114,7 +115,7 @@ def request0():
             timerT.start()
             print("Log saved")
         else:
-            return jsonify({"message": "Internal server error"}), 500
+            return jsonify({"message": "Erro ao tentar conectar com o bonus"}), 500
 
     return jsonify({"message": "Success"}), 200
 
