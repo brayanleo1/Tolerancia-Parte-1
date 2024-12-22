@@ -30,7 +30,7 @@ It applies the following failure tolerance strategy if the ft parameter is true:
 """
 
 # Configurações do banco de dados
-db_config = mysql.connector.connect(user= "user", password= "password", port= "3307", database= "ecomerce2")
+db_config = mysql.connector.connect(host="db",user= "root", password= "root", port= "3306", database= "db")
 
 # Conexão com o banco de dados
 def get_db_connection():
