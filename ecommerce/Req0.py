@@ -65,13 +65,13 @@ def request0():
                 product = s.get('http://store:5001/product', headers=headers, data=product_data)
                 if product.status_code == 200:
                     break
+            return jsonify({"message": "Internal server error"}), 500
         else:
             return jsonify({"message": "Internal server error"}), 500
     
     # Request to the exchange rate service
     exchange = s.get('http://exchange:5002/exchange', headers=headers)
-    if !exchange :
-        print("TESTE")
+
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
 
@@ -92,6 +92,7 @@ def request0():
                 sell = s.post('http://store:5001/sell', headers=headers, data=sell_data)
                 if sell.status_code == 200:
                     break
+            return jsonify({"message": "Internal server error"}), 500
         else:
             return jsonify({"message": "Internal server error"}), 500
     
@@ -112,8 +113,6 @@ def request0():
             timerT =  threading.Timer(20, process_log)
             timerT.start()
             print("Log saved")
-            
-
         else:
             return jsonify({"message": "Internal server error"}), 500
 
