@@ -72,7 +72,6 @@ def request0():
         else:
             return jsonify({"message": "Erro ao tentar conectar com o exchange"}), 500
 
-
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
 
@@ -101,13 +100,15 @@ def request0():
             # Now open the file log.txt and write the user_id and bonus_value on the last line
             with open("log.txt", "a") as file:
                 file.write(" " + str(user_id) +" "+ str(round(product.json()["value"])) + f"\n")
-            # Now set the process_in_the_log to True
-            process_in_the_log = True
+            if not process_in_the_log:
+                # Now set the process_in_the_log to True
+                process_in_the_log = True
 
-            # Now create a timer thread to try to process the log in 20 seconds
-            timerT =  threading.Timer(20, process_log)
-            timerT.start()
-            print("Log saved")
+                # Now create a timer thread to try to process the log in 20 seconds
+                timerT =  threading.Timer(20, process_log)
+                timerT.start()
+                print("Log saved")
+
         else:
             return jsonify({"message": "Erro ao tentar conectar com o bonus"}), 500
 
@@ -140,6 +141,7 @@ def process_log():
                                 break
                 else:
                     threading.Timer(20, process_log) #Try again in 20 seconds
+                    break
     process_in_the_log = False
 
 if __name__ == '__main__':
