@@ -76,12 +76,6 @@ def request0():
     if exchange.status_code == 200:
         last_exchange_rate = exchange.json()["exchange_rate"]
 
-    if exchange.status_code != 200 or exchange == None or exchange.json()["exchange_rate"] == None:
-        if ft:
-            exchange = jsonify({"exchange_rate": last_exchange_rate})
-        else:
-            return jsonify({"message": "Erro ao tentar conectar com o exchange"}), 500
-
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
     # Request to the store selling service
