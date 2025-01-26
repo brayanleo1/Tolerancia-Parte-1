@@ -51,7 +51,7 @@ def request0():
     
     # Request to the store product information service
     product = s.get('http://store:5001/product', headers=headers, data=product_data)
-    print(product)
+    # print(product)
 
     if product.status_code != 200:
         if ft:
@@ -64,16 +64,22 @@ def request0():
             return jsonify({"message": "Erro ao tentar conectar com o product"}), 500
     
     # Request to the exchange rate service
+    exchange = jsonify({"status_code": 202})
+    exchange_response = 200
+    exchange_status = 200
     try:
         exchange = s.get('http://exchange:5002/exchange', headers=headers)
+        exchange_response = exchange.json()
+        exchange_status = exchange.status_code
     except requests.exceptions.RequestException:
         if ft:
-            exchange = jsonify({"exchange_rate": last_exchange_rate})
+            exchange_response = jsonify({"exchange_rate": last_exchange_rate})
+            exchange_status = jsonify({"status_code":203})
         else:
             return jsonify({"message": "Erro ao tentar conectar com o exchange"}), 500
 
-    if exchange.status_code == 200:
-        last_exchange_rate = exchange.json()["exchange_rate"]
+    if exchange_status == 200:
+        last_exchange_rate = exchange_response['exchange_rate']
 
     sell_data = '{"product_id": ' + str(product_id) + '}'
 
